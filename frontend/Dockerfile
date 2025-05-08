@@ -1,6 +1,9 @@
 # Use Node.js LTS version
 FROM node:20-alpine
 
+# Create a non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 # Set working directory
 WORKDIR /app
 
@@ -21,6 +24,12 @@ RUN npm run build
 
 # Install serve to run the production build
 RUN npm install -g serve
+
+# Set proper permissions
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
 
 # Expose port
 EXPOSE 3000

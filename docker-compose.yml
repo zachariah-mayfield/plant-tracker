@@ -9,7 +9,7 @@ services:
     volumes:
       - ./backend/data:/app/data  # Optional local mount for app data
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/plantdb
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:
       - db
     restart: unless-stopped
@@ -28,9 +28,9 @@ services:
     container_name: plant-tracker-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: plantdb
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-plantdb}
     volumes:
       - plant-tracker_postgres_data:/var/lib/postgresql/data  # Correct volume name
       - ./pg_backups:/backups  # Mount local backups folder to container
