@@ -1,0 +1,46 @@
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from .. import crud, schemas, models
+from ..database import SessionLocal
+
+router = APIRouter()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@router.get("/plants", response_model=list[schemas.PlantOutSchema])
+def read_plants(db: Session = Depends(get_db)):
+    return crud.get_plants(db)
+
+@router.get("/plants/{id}", response_model=schemas.PlantOutSchema)
+def read_plant(id: int, db: Session = Depends(get_db)):
+    plant = crud.get_plant(db, id)
+    if plant is None:
+        raise HTTPException(status_code=404, detail="Plant not found")
+    return plant
+
+@router.post("/plants", response_model=schemas.PlantOutSchema)
+def create_plant(plant: schemas.PlantSchema, db: Session = Depends(get_db)):
+    try:
+        return crud.create_plant(db, plant)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Plant with that name might already exist.")
+
+@router.put("/plants/{id}", response_model=schemas.PlantOutSchema)
+def update_plant(id: int, plant: schemas.PlantSchema, db: Session = Depends(get_db)):
+    db_plant = crud.get_plant(db, id)
+    if db_plant is None:
+        raise HTTPException(status_code=404, detail="Plant not found")
+    return crud.update_plant(db, db_plant, plant)
+
+@router.delete("/plants/{id}")
+def delete_plant(id: int, db: Session = Depends(get_db)):
+    db_plant = crud.get_plant(db, id)
+    if db_plant is None:
+        raise HTTPException(status_code=404, detail="Plant not found")
+    crud.delete_plant(db, db_plant)
+    return {"message": f"Plant with id {id} has been deleted."}

@@ -1,0 +1,17 @@
+- name: Mammoth Jalapeno
+  type: Pepper
+  water_frequency: Daily
+  sunlight_requirements: 12 Hours of Sun
+  notes: Prune leaves below the V-stem after it's first flower to grow stronger.
+
+- name: Tomato
+  type: Vegetable
+  water_frequency: Every 2 days
+  sunlight_requirements: 6 Hours of Sun
+  notes: Loves heat
+
+- name: Basil
+  type: Herb
+  water_frequency: Daily
+  sunlight_requirements: 6 Hours of Sun
+  notes: Pinch tops to grow bushy

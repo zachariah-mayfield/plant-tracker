@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: plant-tracker-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/data:/app/data  # Optional local mount for app data
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/plantdb
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: plant-tracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: plantdb
+    volumes:
+      - plant-tracker_postgres_data:/var/lib/postgresql/data  # Correct volume name
+      - ./pg_backups:/backups  # Mount local backups folder to container
+
+volumes:
+  plant-tracker_postgres_data:  # Correct volume name
