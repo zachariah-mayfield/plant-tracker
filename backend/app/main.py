@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from .routers import plants, health
 from .database import Base, engine
+import os
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+# Only create tables if not in test environment
+if os.environ.get("TESTING") != "1":
+    Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
