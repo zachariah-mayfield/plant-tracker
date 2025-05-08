@@ -5,6 +5,10 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 import os
+from fastapi.middleware.cors import CORSMiddleware
+from app.routers import plants
+from app.security import setup_security_middleware
+import logging
 
 # Load DB connection from environment
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/plantdb")
@@ -38,8 +42,24 @@ class PlantOutSchema(PlantSchema):
     class Config:
         orm_mode = True
 
-# Initialize FastAPI app
-app = FastAPI()
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(
+    title="Plant Tracker API",
+    description="API for tracking plants and their care",
+    version="1.0.0",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json"
+)
+
+# Setup security middleware
+setup_security_middleware(app)
 
 # Dependency to get DB session
 def get_db():
@@ -63,7 +83,6 @@ def db_check():
             return {"db_alive": result.scalar() == 1}
     except Exception as e:
         return {"error": str(e)}
-
 
 # Get all plants
 @app.get("/plants", response_model=List[PlantOutSchema])
@@ -117,3 +136,10 @@ def delete_plant(id: int, db: Session = Depends(get_db)):
     db.delete(db_plant)
     db.commit()
     return {"message": f"Plant with id {id} has been deleted."}
+
+# Include routers
+app.include_router(plants.router, prefix="/api/v1")
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy"}

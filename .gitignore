@@ -1,4 +1,7 @@
-# Environment variables
+# Secrets
+secrets/
+*.pem
+*.key
 .env
 .env.*
 !.env.example
@@ -22,6 +25,7 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -31,37 +35,59 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Docker
 .docker/
+docker-compose.override.yml
 
-# IDE
+# IDEs and editors
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Virtual environments
-venv/
-
-# VSCode or IDE config
-.vscode/
-
-# Docker-related
+# Logs
+logs/
 *.log
-*.pid
-*.seed
-*.pid.lock
-*.db
-docker-compose.override.yml
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Test cache
+# Testing
+coverage/
+.coverage
+htmlcov/
 .pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 
-# SQLite / DB backup
-*.sqlite3
+# Build
+build/
+dist/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+
+# Misc
 *.bak
+*.tmp
+*.temp
+.cache/
+.temp/
+.tmp/

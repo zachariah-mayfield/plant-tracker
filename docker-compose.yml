@@ -1,39 +1,32 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  backend:
-    image: zachariahmayfield/plant-tracker:backend-latest
-    container_name: plant-tracker-api
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend/data:/app/data  # Optional local mount for app data
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  frontend:
-    image: zachariahmayfield/plant-tracker:frontend-latest
-    container_name: plant-tracker-frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    restart: unless-stopped
-
   db:
     image: postgres:15
-    container_name: plant-tracker-db
-    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-plantdb}
+    ports:
+      - "5432:5432"
     volumes:
-      - plant-tracker_postgres_data:/var/lib/postgresql/data  # Correct volume name
-      - ./pg_backups:/backups  # Mount local backups folder to container
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-plantdb}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key}
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
-  plant-tracker_postgres_data:  # Correct volume name
+  postgres_data:

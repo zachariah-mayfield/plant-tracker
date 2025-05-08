@@ -1,0 +1,101 @@
+name: Test Workflow
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  test-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check SSH Host
+        run: |
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then
+            echo "SSH_HOST secret is not set"
+            exit 1
+          fi
+          echo "SSH_HOST is configured"
+
+      - name: Check SSH Username
+        run: |
+          if [ -z "${{ secrets.SSH_USERNAME }}" ]; then
+            echo "SSH_USERNAME secret is not set"
+            exit 1
+          fi
+          echo "SSH_USERNAME is configured"
+
+      - name: Check SSH Private Key
+        run: |
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "SSH_PRIVATE_KEY secret is not set"
+            exit 1
+          fi
+          echo "SSH_PRIVATE_KEY is configured"
+
+      - name: Check Database Secrets
+        run: |
+          if [ -z "${{ secrets.POSTGRES_USER }}" ]; then
+            echo "POSTGRES_USER secret is not set"
+            exit 1
+          fi
+          echo "POSTGRES_USER is configured"
+          
+          if [ -z "${{ secrets.POSTGRES_PASSWORD }}" ]; then
+            echo "POSTGRES_PASSWORD secret is not set"
+            exit 1
+          fi
+          echo "POSTGRES_PASSWORD is configured"
+          
+          if [ -z "${{ secrets.POSTGRES_DB }}" ]; then
+            echo "POSTGRES_DB secret is not set"
+            exit 1
+          fi
+          echo "POSTGRES_DB is configured"
+          
+          if [ -z "${{ secrets.JWT_SECRET }}" ]; then
+            echo "JWT_SECRET secret is not set"
+            exit 1
+          fi
+          echo "JWT_SECRET is configured"
+
+  test-docker:
+    needs: test-secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test Backend Build
+        run: |
+          docker build -t test-backend ./backend
+          echo "Backend build successful"
+
+      - name: Test Frontend Build
+        run: |
+          docker build -t test-frontend ./frontend
+          echo "Frontend build successful"
+
+  test-deployment:
+    needs: test-docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "SSH connection successful"
+            docker --version
+            docker-compose --version 
