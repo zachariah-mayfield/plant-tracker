@@ -17,6 +17,8 @@ def test_create_plant(client):
         "notes": "Test notes"
     }
     response = client.post("/plants", json=plant_data)
+    if response.status_code != status.HTTP_200_OK:
+        print(f"Response content: {response.content}")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["name"] == plant_data["name"]
@@ -40,6 +42,8 @@ def test_get_plant(client):
         "notes": "Test notes"
     }
     create_response = client.post("/plants", json=plant_data)
+    if create_response.status_code != status.HTTP_200_OK:
+        print(f"Response content: {create_response.content}")
     assert create_response.status_code == status.HTTP_200_OK
     plant_id = create_response.json()["id"]
     
@@ -61,6 +65,8 @@ def test_update_plant(client):
         "notes": "Test notes"
     }
     create_response = client.post("/plants", json=plant_data)
+    if create_response.status_code != status.HTTP_200_OK:
+        print(f"Response content: {create_response.content}")
     assert create_response.status_code == status.HTTP_200_OK
     plant_id = create_response.json()["id"]
     
@@ -89,6 +95,8 @@ def test_delete_plant(client):
         "notes": "Test notes"
     }
     create_response = client.post("/plants", json=plant_data)
+    if create_response.status_code != status.HTTP_200_OK:
+        print(f"Response content: {create_response.content}")
     assert create_response.status_code == status.HTTP_200_OK
     plant_id = create_response.json()["id"]
     

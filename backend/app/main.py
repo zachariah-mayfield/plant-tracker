@@ -4,7 +4,7 @@ from .database import Base, engine
 import os
 
 # Only create tables if not in test environment
-if os.environ.get("TESTING") != "1":
+if not os.environ.get("TESTING"):
     Base.metadata.create_all(bind=engine)
 
 app = FastAPI()

@@ -1,16 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from .. import crud, schemas, models
-from ..database import SessionLocal
+from ..database import get_db
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/plants", response_model=list[schemas.PlantOut])
 def read_plants(db: Session = Depends(get_db)):
@@ -25,10 +18,7 @@ def read_plant(id: int, db: Session = Depends(get_db)):
 
 @router.post("/plants", response_model=schemas.PlantOut)
 def create_plant(plant: schemas.PlantCreate, db: Session = Depends(get_db)):
-    try:
-        return crud.create_plant(db, plant)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Plant with that name might already exist.")
+    return crud.create_plant(db, plant)
 
 @router.put("/plants/{id}", response_model=schemas.PlantOut)
 def update_plant(id: int, plant: schemas.PlantUpdate, db: Session = Depends(get_db)):

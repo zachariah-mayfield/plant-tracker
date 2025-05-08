@@ -5,7 +5,7 @@ import os
 
 # Use SQLite for testing, PostgreSQL for production
 if os.getenv("TESTING") == "1":
-    DATABASE_URL = "sqlite:///:memory:"
+    DATABASE_URL = "sqlite:///./test.db"
     engine = create_engine(
         DATABASE_URL,
         connect_args={"check_same_thread": False}
