@@ -16,8 +16,8 @@ def test_create_plant(client):
         "sunlight_requirements": "Full Sun",
         "notes": "Test notes"
     }
-    response = client.post("/plants/", json=plant_data)
-    assert response.status_code == status.HTTP_201_CREATED
+    response = client.post("/plants", json=plant_data)
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["name"] == plant_data["name"]
     assert data["type"] == plant_data["type"]
@@ -25,7 +25,7 @@ def test_create_plant(client):
 
 def test_get_plants(client):
     """Test getting all plants."""
-    response = client.get("/plants/")
+    response = client.get("/plants")
     assert response.status_code == status.HTTP_200_OK
     assert isinstance(response.json(), list)
 
@@ -39,7 +39,8 @@ def test_get_plant(client):
         "sunlight_requirements": "Full Sun",
         "notes": "Test notes"
     }
-    create_response = client.post("/plants/", json=plant_data)
+    create_response = client.post("/plants", json=plant_data)
+    assert create_response.status_code == status.HTTP_200_OK
     plant_id = create_response.json()["id"]
     
     # Then get the plant
@@ -59,7 +60,8 @@ def test_update_plant(client):
         "sunlight_requirements": "Full Sun",
         "notes": "Test notes"
     }
-    create_response = client.post("/plants/", json=plant_data)
+    create_response = client.post("/plants", json=plant_data)
+    assert create_response.status_code == status.HTTP_200_OK
     plant_id = create_response.json()["id"]
     
     # Update the plant
@@ -86,7 +88,8 @@ def test_delete_plant(client):
         "sunlight_requirements": "Full Sun",
         "notes": "Test notes"
     }
-    create_response = client.post("/plants/", json=plant_data)
+    create_response = client.post("/plants", json=plant_data)
+    assert create_response.status_code == status.HTTP_200_OK
     plant_id = create_response.json()["id"]
     
     # Delete the plant

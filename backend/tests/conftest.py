@@ -9,9 +9,10 @@ from sqlalchemy.pool import StaticPool
 os.environ["TESTING"] = "1"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
-# Now import the app
+# Now import the app and models
 from app.main import app
 from app.database import get_db, Base
+from app.models import Plant  # Import models to ensure they are registered
 
 # Create an in-memory SQLite database for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -23,12 +24,16 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+@pytest.fixture(autouse=True)
+def create_tables():
+    """Create all tables before each test."""
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+
 @pytest.fixture
 def db_session():
     """Create a fresh database session for each test."""
-    # Create all tables
-    Base.metadata.create_all(bind=engine)
-    
     connection = engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
@@ -38,8 +43,6 @@ def db_session():
     session.close()
     transaction.rollback()
     connection.close()
-    # Drop all tables
-    Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture
 def client(db_session):
