@@ -49,6 +49,11 @@ def get_db():
     finally:
         db.close()
 
+# Root endpoint
+@app.get("/")
+def read_root():
+    return {"Home Page: This is the Plant Tracker API. Use /docs for Swagger UI."}
+
 # Health check
 @app.get("/db-check")
 def db_check():

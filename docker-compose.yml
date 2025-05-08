@@ -2,8 +2,7 @@ version: "3.9"
 
 services:
   backend:
-    build:
-      context: ./backend
+    image: zachariahmayfield/plant-tracker:backend-latest
     container_name: plant-tracker-api
     ports:
       - "8000:8000"
@@ -13,6 +12,15 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/plantdb
     depends_on:
       - db
+    restart: unless-stopped
+
+  frontend:
+    image: zachariahmayfield/plant-tracker:frontend-latest
+    container_name: plant-tracker-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
     restart: unless-stopped
 
   db:

@@ -1,3 +1,4 @@
+from backend.main import app  # Assuming app is defined in backend/main.py
 from fastapi.testclient import TestClient
 from backend.main import app
 
