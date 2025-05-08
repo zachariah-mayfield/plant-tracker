@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-from app.database import get_db
+from app.database import get_db, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -19,6 +19,9 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 @pytest.fixture
 def db_session():
     """Create a fresh database session for each test."""
+    # Create all tables
+    Base.metadata.create_all(bind=engine)
+    
     connection = engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
@@ -28,6 +31,8 @@ def db_session():
     session.close()
     transaction.rollback()
     connection.close()
+    # Drop all tables
+    Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture
 def client(db_session):
